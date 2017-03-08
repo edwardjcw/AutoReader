@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Speech.Synthesis;
+using System.Threading;
 using System.Windows;
 using System.Windows.Documents;
+using Microsoft.Win32;
 
 
 namespace LazyAutoReader2
@@ -11,13 +13,13 @@ namespace LazyAutoReader2
     /// </summary>
     public sealed partial  class MainWindow: IDisposable
     {
+
         private readonly SpeechSynthesizer m_Synth;
 
         public MainWindow()
-        {       
+        { 
             InitializeComponent();
             DataObject.AddPastingHandler(m_TextBox, OnPaste);
-            
             
             m_Synth = new SpeechSynthesizer();
             m_Synth.SetOutputToDefaultAudioDevice();
@@ -31,6 +33,20 @@ namespace LazyAutoReader2
             if (m_Synth.State != SynthesizerState.Ready) return;
 
             var text = new TextRange(m_TextBox.Document.ContentStart, m_TextBox.Document.ContentEnd).Text;
+            m_Synth.SetOutputToDefaultAudioDevice();
+
+            if (m_AutoSaveToggle.IsChecked != null && m_AutoSaveToggle.IsChecked.Value)
+            {
+                var saveFileDialog = new SaveFileDialog {Title = "Select location to save file."};
+                saveFileDialog.ShowDialog();
+                if (saveFileDialog.FileName == "")
+                {
+                    m_Information.Content = "No file selected.";
+                    return;
+                }
+                m_Synth.SetOutputToWaveFile(saveFileDialog.FileName);
+                m_Information.Content = "File save complete";
+            }
             m_Synth.SpeakAsync(text);
         }
 
@@ -45,7 +61,7 @@ namespace LazyAutoReader2
                 case SynthesizerState.Paused:
                     break;
                 case SynthesizerState.Ready:
-                    m_Information.Content = "Ready.";
+                    m_Information.Content = "Done. Ready.";
                     m_Button.Content = "Start";
                     break;
                 default:
@@ -66,7 +82,7 @@ namespace LazyAutoReader2
 
         private void OnPaste(object sender, DataObjectPastingEventArgs e)
         {
-            if (m_ToggleSwitch.IsChecked == null || !m_ToggleSwitch.IsChecked.Value) return;
+            if (m_AutoPlayToggle.IsChecked == null || !m_AutoPlayToggle.IsChecked.Value) return;
 
             if (e.DataObject.GetDataPresent(typeof(string)))
             {

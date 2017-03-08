@@ -22,11 +22,12 @@
                 </Paragraph>
             </FlowDocument>
         </RichTextBox>
-        <Label x:Name="m_Information" Height="27" Margin="24,3,144,0" VerticalAlignment="Top" Grid.Row="1" Grid.ColumnSpan="2"/>
-        <CheckBox x:Name="m_ToggleSwitch" Content="AutoPlay Upon Paste" Height="16" Margin="0,46,10,0" VerticalAlignment="Top" Grid.Column="1" HorizontalAlignment="Right" Width="144"/>
+        <Label x:Name="m_Information" Height="27" Margin="10,3,0,0" VerticalAlignment="Top" Grid.Row="1"/>
+        <CheckBox x:Name="m_AutoPlayToggle" Content="AutoPlay Upon Paste" Height="16" Margin="0,16,10,0" VerticalAlignment="Top" Grid.Column="1" HorizontalAlignment="Right" Width="144"/>
         <Button x:Name="m_Button" Content="Start" HorizontalAlignment="Left" Height="21" Margin="10,43,0,0" VerticalAlignment="Top" Width="118" Click="OnButtonClick"/>
         <Button x:Name="m_PasteButton" Content="Clear and Paste" Margin="0,3,10,0" VerticalAlignment="Top" Click="OnClickClearAndPaste" Grid.Row="1" HorizontalAlignment="Right" Width="97" Height="20" Grid.Column="1"/>
         <Label x:Name="label" Content="Text to Speech Reader" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+        <CheckBox x:Name="m_AutoSaveToggle" Content="Save Instead of Play" Grid.Column="1" HorizontalAlignment="Left" Margin="92,43,0,0" VerticalAlignment="Top" Width="130"/>
 
     </Grid>
 </Window>
