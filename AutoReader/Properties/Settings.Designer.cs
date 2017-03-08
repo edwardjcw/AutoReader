@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace LazyAutoReader2.Properties
+namespace AutoReader.Properties
 {
 
 

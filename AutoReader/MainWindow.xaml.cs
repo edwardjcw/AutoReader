@@ -1,31 +1,29 @@
 ﻿using System;
-using System.Speech.Synthesis;
-using System.Threading;
 using System.Windows;
 using System.Windows.Documents;
+using System.Speech.Synthesis;
 using Microsoft.Win32;
 
-
-namespace LazyAutoReader2
+namespace AutoReader
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public sealed partial  class MainWindow: IDisposable
+    public partial class MainWindow : IDisposable
     {
 
         private readonly SpeechSynthesizer m_Synth;
 
         public MainWindow()
-        { 
+        {
             InitializeComponent();
             DataObject.AddPastingHandler(m_TextBox, OnPaste);
-            
+
             m_Synth = new SpeechSynthesizer();
             m_Synth.SetOutputToDefaultAudioDevice();
             m_Synth.StateChanged += SynthOnStateChanged;
             m_Information.Content = "Ready.";
-            
+
         }
 
         private void Play()
@@ -37,7 +35,7 @@ namespace LazyAutoReader2
 
             if (m_AutoSaveToggle.IsChecked != null && m_AutoSaveToggle.IsChecked.Value)
             {
-                var saveFileDialog = new SaveFileDialog {Title = "Select location to save file."};
+                var saveFileDialog = new SaveFileDialog { Title = "Select location to save file." };
                 saveFileDialog.ShowDialog();
                 if (saveFileDialog.FileName == "")
                 {

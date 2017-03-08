@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace LazyAutoReader2
+namespace AutoReader
 {
     /// <summary>
     /// Interaction logic for App.xaml
