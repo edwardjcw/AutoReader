@@ -21,7 +21,7 @@ namespace AutoReader
 
             m_Synth = new SpeechSynthesizer();
             m_Synth.SetOutputToDefaultAudioDevice();
-
+            m_Synth.SpeakProgress += OnSpeakProgress;
 
             if (Environment.GetCommandLineArgs().Length > 1 && Environment.GetCommandLineArgs()[1] == "1")
             {
@@ -37,6 +37,13 @@ namespace AutoReader
             m_Information.Content = "Ready.";
 
         }
+
+        private void OnSpeakProgress(object sender, SpeakProgressEventArgs speakProgressEventArgs)
+        {
+            m_TextBox.CaretPosition = m_TextBox.Document.ContentStart.GetPositionAtOffset(speakProgressEventArgs.CharacterPosition);
+            m_TextBox.se
+        }
+
 
         private void SynthOnStateChangedStartup(object sender, StateChangedEventArgs stateChangedEventArgs)
         {
