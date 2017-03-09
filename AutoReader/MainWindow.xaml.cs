@@ -22,6 +22,7 @@ namespace AutoReader
             m_Synth = new SpeechSynthesizer();
             m_Synth.SetOutputToDefaultAudioDevice();
 
+
             if (Environment.GetCommandLineArgs().Length > 1 && Environment.GetCommandLineArgs()[1] == "1")
             {
                 m_AutoPlayToggle.Visibility = Visibility.Hidden;
@@ -43,16 +44,16 @@ namespace AutoReader
             {
                 case SynthesizerState.Speaking:
                     m_Information.Content = "Speech in Process";
-                    m_Button.Content = "Stop";
-                    
+                    m_PlayButton.Content = "Stop";
+                    m_PauseButton.Content = "Pause";
+                    m_PauseButton.IsEnabled = true;
                     return;
                 case SynthesizerState.Paused:
-                    break;
+                    m_PauseButton.Content = "Resume";
+                    return;
                 case SynthesizerState.Ready:
-                    m_Information.Content = "Done. Ready.";
-                    m_Button.Content = "Start";
                     Application.Current.Shutdown();
-                    break;
+                    return;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -77,6 +78,7 @@ namespace AutoReader
                 m_Synth.SetOutputToWaveFile(saveFileDialog.FileName);
                 m_Information.Content = "File save complete";
             }
+
             m_Synth.SpeakAsync(text);
         }
 
@@ -86,24 +88,38 @@ namespace AutoReader
             {
                 case SynthesizerState.Speaking:
                     m_Information.Content = "Speech in Process";
-                    m_Button.Content = "Stop";
+                    m_PlayButton.Content = "Stop";
+                    m_PauseButton.Content = "Pause";
+                    m_PauseButton.IsEnabled = true;
                     return;
                 case SynthesizerState.Paused:
-                    break;
+                    m_PauseButton.Content = "Resume";
+                    return;
                 case SynthesizerState.Ready:
                     m_Information.Content = "Done. Ready.";
-                    m_Button.Content = "Start";
-                    break;
+                    m_PlayButton.Content = "Start";
+                    m_PauseButton.Content = "Pause";
+                    m_PauseButton.IsEnabled = false;
+                    return;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        private void OnButtonClick(object sender, RoutedEventArgs e)
+        private void OnPlayButtonClick(object sender, RoutedEventArgs e)
         {
+            if (m_Synth.State == SynthesizerState.Paused)
+            {
+                m_Synth.Resume();
+            }
+
             if (m_Synth.State != SynthesizerState.Ready)
             {
                 m_Synth.SpeakAsyncCancelAll();
+                m_Information.Content = "Done. Ready.";
+                m_PlayButton.Content = "Start";
+                m_PauseButton.Content = "Pause";
+                m_PauseButton.IsEnabled = false;
                 return;
             }
 
@@ -143,6 +159,21 @@ namespace AutoReader
         public void Dispose()
         {
             m_Synth.Dispose();
+        }
+
+        private void OnPauseClick(object sender, RoutedEventArgs e)
+        {
+            switch (m_Synth.State)
+            {
+                case SynthesizerState.Speaking:
+                    m_Synth.Pause();
+                    return;
+                case SynthesizerState.Paused:
+                    m_Synth.Resume();
+                    return;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

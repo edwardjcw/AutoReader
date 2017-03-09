@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="MainWindow" Height="272" Width="384">
+        Title="Simple TTS Reader" Height="272" Width="384">
     <Grid Margin="0,0,2,-31" Height="272" VerticalAlignment="Top">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -23,10 +23,10 @@
         </RichTextBox>
         <Label x:Name="m_Information" Height="27" Margin="10,3,0,0" VerticalAlignment="Top" Grid.Row="1"/>
         <CheckBox x:Name="m_AutoPlayToggle" Content="AutoPlay Upon Paste" Height="16" Margin="0,16,10,0" VerticalAlignment="Top" Grid.Column="1" HorizontalAlignment="Right" Width="144"/>
-        <Button x:Name="m_Button" Content="Start" HorizontalAlignment="Left" Height="21" Margin="10,43,0,0" VerticalAlignment="Top" Width="118" Click="OnButtonClick"/>
+        <Button x:Name="m_PlayButton" Content="Start" HorizontalAlignment="Left" Height="21" Margin="10,16,0,0" VerticalAlignment="Top" Width="118" Click="OnPlayButtonClick"/>
         <Button x:Name="m_PasteButton" Content="Clear and Paste" Margin="0,3,10,0" VerticalAlignment="Top" Click="OnClickClearAndPaste" Grid.Row="1" HorizontalAlignment="Right" Width="97" Height="20" Grid.Column="1"/>
-        <Label x:Name="label" Content="Text to Speech Reader" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
         <CheckBox x:Name="m_AutoSaveToggle" Content="Save Instead of Play" Grid.Column="1" HorizontalAlignment="Left" Margin="92,43,0,0" VerticalAlignment="Top" Width="130"/>
+        <Button x:Name="m_PauseButton" Content="Pause" HorizontalAlignment="Left" Margin="10,44,0,0" VerticalAlignment="Top" Width="118" Click="OnPauseClick" IsEnabled="False"/>
 
     </Grid>
 </Window>
