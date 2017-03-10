@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Documents;
 using System.Speech.Synthesis;
+using System.Windows.Media;
 using Microsoft.Win32;
 
 namespace AutoReader
@@ -19,6 +20,8 @@ namespace AutoReader
             InitializeComponent();
             DataObject.AddPastingHandler(m_TextBox, OnPaste);
 
+            m_TextBox.SelectionBrush = new SolidColorBrush(Color.FromRgb(0, 100, 200));
+           
             m_Synth = new SpeechSynthesizer();
             m_Synth.SetOutputToDefaultAudioDevice();
             m_Synth.SpeakProgress += OnSpeakProgress;
@@ -38,10 +41,41 @@ namespace AutoReader
 
         }
 
+        private static TextPointer EndTextPoint(FlowDocument document, int startPosition, string end)
+        {
+            var offset = 1;
+            TextPointer startPointer = document.ContentStart.GetPositionAtOffset(startPosition);
+
+            if (startPointer == document.ContentEnd)
+            {
+                return null;
+            }
+
+            while (true)
+            {
+                TextPointer endPointer = document.ContentStart.GetPositionAtOffset(startPosition + offset);
+                var text = new TextRange(startPointer, endPointer).Text;
+
+                if (text.EndsWith(end))
+                {
+                    return document.ContentStart.GetPositionAtOffset(startPosition + (offset - 1));
+                }
+
+                offset = offset + 1;
+            }
+        }
+
         private void OnSpeakProgress(object sender, SpeakProgressEventArgs speakProgressEventArgs)
         {
+            var startPosition = speakProgressEventArgs.CharacterPosition;
+            TextPointer startPointer = m_TextBox.Document.ContentStart.GetPositionAtOffset(startPosition);
+            TextPointer endPointer = EndTextPoint(m_TextBox.Document, startPosition, " ");
+
             m_TextBox.CaretPosition = m_TextBox.Document.ContentStart.GetPositionAtOffset(speakProgressEventArgs.CharacterPosition);
-            m_TextBox.se
+            if (startPointer == null) return;
+
+            m_TextBox.Selection.Select(startPointer, endPointer);
+            m_TextBox.Focus();
         }
 
 

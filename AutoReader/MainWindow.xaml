@@ -14,7 +14,7 @@
             <RowDefinition Height="241*"/>
             <RowDefinition Height="78*"/>
         </Grid.RowDefinitions>
-        <RichTextBox x:Name="m_TextBox" Margin="10,69,10,2" Grid.ColumnSpan="2">
+        <RichTextBox x:Name="m_TextBox" Margin="10,69,10,2" Grid.ColumnSpan="2" IsInactiveSelectionHighlightEnabled="True">
             <FlowDocument>
                 <Paragraph>
                     <Run Text="This is a test."/>
