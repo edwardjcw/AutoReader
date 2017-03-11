@@ -27,7 +27,7 @@ namespace AutoReader
             ModifyLexicon();
 
             m_Synth.SetOutputToDefaultAudioDevice();
-            //m_Synth.SpeakProgress += OnSpeakProgress;
+            m_Synth.SpeakProgress += OnSpeakProgress;
 
             if (Environment.GetCommandLineArgs().Length > 1 && Environment.GetCommandLineArgs()[1] == "1")
             {
@@ -76,29 +76,41 @@ namespace AutoReader
         private void OnSpeakProgress(object sender, SpeakProgressEventArgs speakProgressEventArgs)
         {
             var startPosition = speakProgressEventArgs.CharacterPosition;
-            TextPointer startPointer = StartPointer(m_TextBox.Document, startPosition);
-            //TextPointer startPointer = m_TextBox.Document.ContentStart.GetPositionAtOffset(startPosition);
-            TextPointer endPointer = EndTextPoint(m_TextBox.Document, startPosition, " ");
+            TextPointer startPointer = StartPointer(startPosition, m_TextBox.Document.ContentStart, 0);
 
-            m_TextBox.CaretPosition = m_TextBox.Document.ContentStart.GetPositionAtOffset(speakProgressEventArgs.CharacterPosition);
-            if (startPointer == null) return;
+            if (startPointer == null)
+            {
+                return;
+            }
 
-            m_TextBox.Selection.Select(startPointer, endPointer);
+            WordBreaker.GetWordRange(startPointer).ApplyPropertyValue(TextElement.FontWeightProperty, FontWeights.Bold);
             m_TextBox.Focus();
         }
 
-        private TextPointer StartPointer(FlowDocument document, int startPosition, TextPointer text, int charactersPassed)
+        private static TextPointer StartPointer(int startPosition, TextPointer text, int charactersPassed)
         {
-            if (text.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.Text)
+            while (true)
             {
-                var contextSize = text.GetTextRunLength(LogicalDirection.Forward);
-                if (charactersPassed + contextSize > startPosition)
+                if (text == null)
                 {
+                    return null;
+                }
+
+                if (text.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.Text)
+                {
+                    var contextSize = text.GetTextRunLength(LogicalDirection.Forward);
+                    if (charactersPassed + contextSize <= startPosition)
+                    {
+                        text = text.GetNextContextPosition(LogicalDirection.Forward);
+                        charactersPassed = charactersPassed + contextSize;
+                        continue;
+                    }
+
                     var relativeStart = startPosition - charactersPassed;
                     return text.GetPositionAtOffset(relativeStart);
                 }
 
-                return StartPointer(document, startPosition, text.GetNextContextPosition(LogicalDirection.Forward), charactersPassed + contextSize);
+                text = text.GetNextContextPosition(LogicalDirection.Forward);
             }
         }
 
