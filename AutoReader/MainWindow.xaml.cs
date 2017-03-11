@@ -14,14 +14,13 @@ namespace AutoReader
     {
 
         private readonly SpeechSynthesizer m_Synth;
+        private TextRange m_CurrentTextRange;
 
         public MainWindow()
         {
             InitializeComponent();
             DataObject.AddPastingHandler(m_TextBox, OnPaste);
 
-            m_TextBox.SelectionBrush = new SolidColorBrush(Color.FromRgb(0, 100, 200));
-           
             m_Synth = new SpeechSynthesizer();
 
             ModifyLexicon();
@@ -49,45 +48,32 @@ namespace AutoReader
             m_Synth.AddLexicon(new Uri(@"pack://application:,,,/lexicon.pls"), "application/pls+xml");
         }
 
-        private static TextPointer EndTextPoint(FlowDocument document, int startPosition, string end)
-        {
-            var offset = 1;
-            TextPointer startPointer = document.ContentStart.GetPositionAtOffset(startPosition);
-
-            if (startPointer == document.ContentEnd)
-            {
-                return null;
-            }
-
-            while (true)
-            {
-                TextPointer endPointer = document.ContentStart.GetPositionAtOffset(startPosition + offset);
-                var text = new TextRange(startPointer, endPointer).Text;
-
-                if (text.EndsWith(end))
-                {
-                    return document.ContentStart.GetPositionAtOffset(startPosition + (offset - 1));
-                }
-
-                offset = offset + 1;
-            }
-        }
-
         private void OnSpeakProgress(object sender, SpeakProgressEventArgs speakProgressEventArgs)
         {
-            var startPosition = speakProgressEventArgs.CharacterPosition;
-            TextPointer startPointer = StartPointer(startPosition, m_TextBox.Document.ContentStart, 0);
+            var previousWord = speakProgressEventArgs.Text;
+
+            TextPointer start = m_CurrentTextRange != null ? m_CurrentTextRange.Start : m_TextBox.Document.ContentStart;
+            TextPointer startPointer = StartPointer(previousWord, start);
 
             if (startPointer == null)
             {
                 return;
             }
 
-            WordBreaker.GetWordRange(startPointer).ApplyPropertyValue(TextElement.FontWeightProperty, FontWeights.Bold);
+            m_CurrentTextRange?.ApplyPropertyValue(TextElement.FontWeightProperty, FontWeights.Normal);
+
+            m_CurrentTextRange = WordBreaker.GetWordRange(startPointer);
+            m_CurrentTextRange.ApplyPropertyValue(TextElement.FontWeightProperty, FontWeights.Bold);
             m_TextBox.Focus();
         }
 
-        private static TextPointer StartPointer(int startPosition, TextPointer text, int charactersPassed)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lastWord"></param>
+        /// <param name="text">This is the text pointer from which to start the search</param>
+        /// <returns></returns>
+        private static TextPointer StartPointer(string lastWord, TextPointer text)
         {
             while (true)
             {
@@ -98,16 +84,12 @@ namespace AutoReader
 
                 if (text.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.Text)
                 {
-                    var contextSize = text.GetTextRunLength(LogicalDirection.Forward);
-                    if (charactersPassed + contextSize <= startPosition)
-                    {
-                        text = text.GetNextContextPosition(LogicalDirection.Forward);
-                        charactersPassed = charactersPassed + contextSize;
-                        continue;
-                    }
+                    var textToEndOfContext = new TextRange(text, text.DocumentEnd).Text;
+                    var lastWordIndex = textToEndOfContext.IndexOf(lastWord, StringComparison.Ordinal);
 
-                    var relativeStart = startPosition - charactersPassed;
-                    return text.GetPositionAtOffset(relativeStart);
+                    var lastCharLastWordIndex = lastWordIndex + (lastWord.Length - 1);
+
+                    return text.GetPositionAtOffset(lastCharLastWordIndex);
                 }
 
                 text = text.GetNextContextPosition(LogicalDirection.Forward);
