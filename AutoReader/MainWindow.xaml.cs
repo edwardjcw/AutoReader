@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Documents;
 using System.Speech.Synthesis;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 
 namespace AutoReader
@@ -60,10 +61,17 @@ namespace AutoReader
                 return;
             }
 
-            m_CurrentTextRange?.ApplyPropertyValue(TextElement.FontWeightProperty, FontWeights.Normal);
+            m_CurrentTextRange?.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.White);
 
             m_CurrentTextRange = WordBreaker.GetWordRange(startPointer);
-            m_CurrentTextRange.ApplyPropertyValue(TextElement.FontWeightProperty, FontWeights.Bold);
+            m_CurrentTextRange.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.LightBlue);
+
+            Rect r = startPointer.GetCharacterRect(LogicalDirection.Backward);
+            if (m_TextBox.ActualHeight + m_TextBox.VerticalOffset < r.Y + m_TextBox.FontSize)
+            {
+                m_TextBox.ScrollToVerticalOffset(r.Y);
+            }
+
             m_TextBox.Focus();
         }
 
