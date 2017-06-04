@@ -167,6 +167,8 @@ namespace AutoReader
                     m_PlayButton.Content = "Start";
                     m_PauseButton.Content = "Pause";
                     m_PauseButton.IsEnabled = false;
+                    m_CurrentTextRange?.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.White);
+                    m_CurrentTextRange = null;
                     return;
                 default:
                     throw new ArgumentOutOfRangeException();
